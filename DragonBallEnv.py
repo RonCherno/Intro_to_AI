@@ -17,7 +17,6 @@ RIGHT = 1
 UP = 2
 LEFT = 3
 
-
 class DragonBallEnv(Env):
     """
     dragon ball environment involves crossing a namik planet from Start(S) to Goal(G) without falling into any Holes(H)
@@ -269,3 +268,4 @@ class DragonBallEnv(Env):
             return LEFT
         if ((to_state[0] - from_state[0]) == 8):
             return UP
+        
