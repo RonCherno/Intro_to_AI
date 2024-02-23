@@ -47,6 +47,7 @@ class BFSAgent():
 
         while open:
             curr_node = open.pop(0)
+            #print("current node is", curr_node)
             close.append(curr_node)
             expanded += 1
             if self.env.is_final_state(curr_state):

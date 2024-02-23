@@ -8,8 +8,8 @@ UP = 2
 LEFT = 3
 
 MAPS = {
-    "2x2": ["DD",
-            "FG"],
+    "2x2": ["DF",
+            "DG"],
 
     "4x4": ["SFFF",
             "FDFF",
