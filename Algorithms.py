@@ -7,51 +7,6 @@ FIRST = -2
 NO_PREV = -1
 ALL_BALLS = 2
 
-class BFSAgent:
-
-    def search(self, env: DragonBallEnv) -> Tuple[List[int], float, int]:
-        self.env = env
-        self.env.reset()
-        #init_state = self.env.get_initial_state()
-        prev = np.array([FIRST] + [NO_PREV] * 63)  #check later
-        ball_count = 0
-        step_count = 0
-        price = 0.0
-        steps_list = []
-        reverse_steps_list = []
-        open = [(0,)]
-        close = []
-        while len(open) != 0:
-            current = open.pop(0)
-            close.append(current)
-            step_dict = self.env.succ(current)
-            for step in range(4):
-                if prev[step_dict[step][0]] != NO_PREV:
-                    continue
-                if self.env.desc[self.env.to_row_col(step_dict[step][0])] == b'H' :
-                    continue
-                if self.env.desc[self.env.to_row_col(step_dict[step][0])] == b'G' :
-                    ball_count += 1 
-                open.append(step_dict[step][0])
-                if self.env.is_final_state(step_dict[step][0]): #got to the end
-                    if ball_count != ALL_BALLS:
-                        continue
-                    prev[step_dict[step][0]] = current
-                    while current[0] != 0:
-                        step_count += 1
-                        price += self.env.nL_cost(self.env.to_row_col(current))
-                        reverse_steps_list.append(self.env.last_step(prev[current], current))
-                        current = prev[current]
-                    steps_list = reverse_steps_list[::-1] #reverse the reversed tuple
-                    return steps_list, price, step_count
-                if prev[step_dict[step][0]] == NO_PREV:
-                    prev[step_dict[step][0]] = current
-        return None, -1 , -1
-           
-
-
-""" WeightedAStarAgent"""
-
 class Node():
     def __init__(self, f: int, num_state: int, actions: list, cost: int, terminated: bool, d1_status: bool, d2_status: bool) -> None:
         self.c_f = f
@@ -65,6 +20,58 @@ class Node():
         return (self.c_f, self.c_num_state)==(other.c_f, other.c_num_state)
     def __lt__ (self, other):
         return (self.c_f, self.c_num_state)<(other.c_f, other.c_num_state)
+    
+
+
+""" BFS"""
+
+class BFSAgent():
+    def __init__(self) -> None:
+        self.env = None
+
+    def search(self, env: DragonBallEnv) -> Tuple[List[int], float, int]:
+        self.env = env
+        self.env.reset()
+
+        expanded = 0
+        total_cost = 0
+        actions = []
+        curr_state = self.env.get_initial_state()
+        num_state = curr_state[0]
+        is_terminated = False
+        d1_status = self.env.d1[0] == curr_state[0]
+        d2_status = self.env.d2[0] == curr_state[0]
+        curr_node = Node(None, num_state, actions.copy(), total_cost, is_terminated, d1_status, d2_status)
+        open = [curr_node]
+        close = []
+
+        while open:
+            curr_node = open.pop(0)
+            close.append(curr_node)
+            expanded += 1
+            if self.env.is_final_state(curr_state):
+                return (curr_node.c_actions, curr_node.c_total_cost, expanded-1)
+            elif (curr_node.c_terminated) or (num_state == (self.env.nrow * self.env.ncol-1)):
+                expanded = expanded-1
+                continue
+            for action, son in self.env.succ(curr_state).items():
+                num_state = son[0][0]
+                actions = curr_node.c_actions.copy()
+                actions.append(action)
+                total_cost = curr_node.c_total_cost + son[1]
+                is_terminated = son[2]
+                d1_status = (curr_node.c_d1_status) or (son[0][0]==self.env.d1[0])   #assert if its good or should be (son[0][1])
+                d2_status = (curr_node.c_d2_status) or (son[0][0]==self.env.d2[0])
+                new_state = (son[0][0], d1_status, d2_status)
+                new_node = Node(None, num_state, actions.copy(), total_cost, is_terminated, d1_status, d2_status)      
+                if new_node not in open and new_node not in close:
+                    open.append(new_node)
+        return ([], 0, 0)
+
+
+""" WeightedAStarAgent"""
+
+
         
 
 class WeightedAStarAgent():
