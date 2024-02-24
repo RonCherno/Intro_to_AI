@@ -17,7 +17,7 @@ class Node():
         self.c_d1_status = d1_status
         self.c_d2_status = d2_status
     def __eq__ (self, other):
-        return (self.c_f, self.c_num_state)==(other.c_f, other.c_num_state)
+        return (self.c_f, self.c_num_state, self.c_d1_status, self.c_d2_status)==(other.c_f, other.c_num_state, other.c_d1_status, other.c_d2_status)
     def __lt__ (self, other):
         return (self.c_f, self.c_num_state)<(other.c_f, other.c_num_state)
     
@@ -47,12 +47,13 @@ class BFSAgent():
 
         while open:
             curr_node = open.pop(0)
+            curr_state = (curr_node.c_num_state, curr_node.c_d1_status, curr_node.c_d2_status)
             #print("current node is", curr_node)
             close.append(curr_node)
             expanded += 1
             if self.env.is_final_state(curr_state):
                 return (curr_node.c_actions, curr_node.c_total_cost, expanded-1)
-            elif (curr_node.c_terminated) or (num_state == (self.env.nrow * self.env.ncol-1)):
+            elif (curr_node.c_terminated) or (num_state == (self.env.nrow * self.env.ncol-1)): #check about actions when getting to end without balls
                 expanded = expanded-1
                 continue
             for action, son in self.env.succ(curr_state).items():

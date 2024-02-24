@@ -11,10 +11,15 @@ MAPS = {
     "2x2": ["DF",
             "DG"],
 
+    "3x3": ["SFD",
+            "FFF",
+            "DFG"],
+
     "4x4": ["SFFF",
             "FDFF",
             "FFFD",
             "FFFG"],
+
     "8x8": [
         "SFFFFFFF",
         "FFFFFTAL",
@@ -28,7 +33,7 @@ MAPS = {
 }
 
 
-env = DragonBallEnv(MAPS["2x2"])
+env = DragonBallEnv(MAPS["8x8"])
 state = env.reset()
 print('Initial state:', state)
 print('Goal states:', env.goals) 
@@ -42,4 +47,4 @@ print(f"Total_cost: {total_cost}")
 print(f"Expanded: {expanded}")
 print(f"Actions: {actions}")
 
-assert total_cost == 119.0, "Error in total cost returned"
+assert total_cost == 53.0, "Error in total cost returned"
