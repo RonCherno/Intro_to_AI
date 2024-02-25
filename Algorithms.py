@@ -186,7 +186,7 @@ class AStarEpsilonAgent():
         min_value = curr_min[1].c_f
         
         while ((open) and (curr_min[1].c_f <= (1+epsilon)* min_value)):
-            focal[curr_min[0]] = (curr_min[1].c_total_cost, curr_min[1])
+            focal[curr_min[0]] = (curr_min[1].c_total_cost, curr_min[1].c_num_state, curr_min[1])
             curr_min = open.popitem()
 
         if (focal):
@@ -197,9 +197,9 @@ class AStarEpsilonAgent():
         
         while (focal):
             next_focal = focal.popitem()
-            open[next_focal[0]] = next_focal[1][1]
+            open[next_focal[0]] = next_focal[1][2]
         
-        return (min_focal[0], min_focal[1][1])
+        return (min_focal[0], min_focal[1][2])
     
         
 
