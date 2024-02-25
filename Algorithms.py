@@ -1,26 +1,8 @@
 import numpy as np
+
 from DragonBallEnv import DragonBallEnv
 from typing import List, Tuple
 import heapdict
-
-FIRST = -2
-NO_PREV = -1
-ALL_BALLS = 2
-
-class Node():
-    def __init__(self, f: int, num_state: int, actions: list, cost: int, terminated: bool, d1_status: bool, d2_status: bool) -> None:
-        self.c_f = f
-        self.c_num_state = num_state
-        self.c_actions = actions.copy()
-        self.c_total_cost = cost
-        self.c_terminated = terminated
-        self.c_d1_status = d1_status
-        self.c_d2_status = d2_status
-    def __eq__ (self, other):
-        return (self.c_f, self.c_num_state, self.c_d1_status, self.c_d2_status)==(other.c_f, other.c_num_state, other.c_d1_status, other.c_d2_status)
-    def __lt__ (self, other):
-        return (self.c_f, self.c_num_state)<(other.c_f, other.c_num_state)
-    
 
 
 """ BFS"""
@@ -51,10 +33,8 @@ class BFSAgent():
             #print("current node is", curr_node)
             close.append(curr_node)
             expanded += 1
-            if self.env.is_final_state(curr_state):
-                return (curr_node.c_actions, curr_node.c_total_cost, expanded-1)
-            elif (curr_node.c_terminated) or (num_state == (self.env.nrow * self.env.ncol-1)): #check about actions when getting to end without balls
-                expanded = expanded-1
+            if (curr_node.c_terminated) or (curr_node.c_num_state == (self.env.nrow * self.env.ncol-1)): #check about actions when getting to end without balls
+                #expanded = expanded-1
                 continue
             for action, son in self.env.succ(curr_state).items():
                 num_state = son[0][0]
@@ -67,13 +47,28 @@ class BFSAgent():
                 new_state = (son[0][0], d1_status, d2_status)
                 new_node = Node(None, num_state, actions.copy(), total_cost, is_terminated, d1_status, d2_status)      
                 if new_node not in open and new_node not in close:
+                    if self.env.is_final_state(new_state):
+                        return (actions, total_cost, expanded)
                     open.append(new_node)
         return ([], 0, 0)
 
 
-""" WeightedAStarAgent"""
 
 
+
+class Node():
+    def __init__(self, f: int, num_state: int, actions: list, cost: int, terminated: bool, d1_status: bool, d2_status: bool) -> None:
+        self.c_f = f
+        self.c_num_state = num_state
+        self.c_actions = actions.copy()
+        self.c_total_cost = cost
+        self.c_terminated = terminated
+        self.c_d1_status = d1_status
+        self.c_d2_status = d2_status
+    def __eq__ (self, other):
+        return (self.c_f, self.c_num_state, self.c_d1_status, self.c_d2_status)==(other.c_f, other.c_num_state, other.c_d1_status, other.c_d2_status)
+    def __lt__ (self, other):
+        return (self.c_f, self.c_num_state)<(other.c_f, other.c_num_state)
         
 
 class WeightedAStarAgent():
@@ -128,7 +123,7 @@ class WeightedAStarAgent():
             if (self.env.is_final_state(curr_state)):
                 return (curr_node.c_actions, curr_node.c_total_cost, expanded-1)
             elif ((curr_node.c_terminated) or (curr_state[0] == (self.env.nrow * self.env.ncol-1))):
-                expanded = expanded-1
+                #expanded = expanded-1
                 continue
             for action, son in self.env.succ(curr_state).items() :
                num_state = son[0][0]
@@ -157,8 +152,10 @@ class WeightedAStarAgent():
         
         return ([], 0, 0)
 
+                   
 
-# class AStarEpsilonAgent():
+
+
 
 class AStarEpsilonAgent():
     def __init__(self) -> None:
@@ -194,7 +191,7 @@ class AStarEpsilonAgent():
 
         if (focal):
             open[curr_min[0]] = curr_min[1]
-            min_focal = focal.popitem()         #ensure its pop by cost
+            min_focal = focal.popitem()         #ensure its pop by cost, guess focal isnt empty
         else:
             return (curr_min[0], curr_min[1])
         
@@ -236,7 +233,7 @@ class AStarEpsilonAgent():
             if (self.env.is_final_state(curr_state)):
                 return (curr_node.c_actions, curr_node.c_total_cost, expanded-1)
             elif ((curr_node.c_terminated) or (curr_state[0] == (self.env.nrow * self.env.ncol-1))):
-                expanded = expanded-1
+                #expanded = expanded-1
                 continue
             for action, son in self.env.succ(curr_state).items() :
                num_state = son[0][0]
